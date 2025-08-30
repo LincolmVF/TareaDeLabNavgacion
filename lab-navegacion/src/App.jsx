@@ -1,69 +1,77 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { Routes, Route, Link } from "react-router-dom"
-import { useCounter} from "./context/CunterContext"
+import { Routes, Route, Link } from "react-router-dom";
+import { CartProvider, useCart } from "./context/CartContext";
+
 
 function Home() {
-
-  const {count, inc} = useCounter();
-  return (
-    <>
-    
-    <h2>Bienvenido a Home </h2>
-    <p>Contador Global : {count}</p>
-    <button onClick={inc}>Incrementar 1</button>
-    </>
-    
-  );
+  return <h2>Bienvenido a la tienda </h2>;
 }
 
-function About() {
-  const {count} = useCounter();
-  return (
-<>
-  <h2>Sección About </h2>
-  <p>El contador aqui tambien vale: {count}</p>
-  </>
-    
-  )
-}
+function Catalogo() {
+  const { addToCart } = useCart();
 
-function Profile() {
-  const {count,reset}= useCounter();
-  return(
-    <>
-  <h2>Perfil </h2>
-  <p>El contador actual: {count}</p>
-  <button onClick={reset}>Reset</button>
-  </>
-  )
-}
-
-function App() {
-  const [count, setCount] = useState(0)
+  const productos = [
+    { id: 1, nombre: "Polo 1", precio: 250 },
+    { id: 2, nombre: "Polo 2", precio: 50 },
+    { id: 3, nombre: "Polo 3", precio: 30 },
+  ];
 
   return (
     <div>
-
-<h1>TEMA DE REPASO : REACT ROUTER + CONTEXT API</h1>
-
-      <nav>
-       
-        <Link to="/">Home</Link> 
-        <Link to="/about">About</Link> 
-        <Link to="/profile">Profile</Link>
-      </nav>
-
-    
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
+      <h2>Catálogo</h2>
+      <div style={{ display: "flex", gap: "20px" }}>
+        {productos.map((p) => (
+          <div key={p.id} style={{ border: "1px solid gray", padding: "10px", borderRadius: "8px", width: "180px" }}>
+            <img
+              src="https://promart.vteximg.com.br/arquivos/ids/8168688-1000-1000/image-0.jpg?v=638629003104100000"
+              alt={p.nombre}
+              width="150"
+            />
+            <h3>{p.nombre}</h3>
+            <p>Precio: S/. {p.precio}</p>
+            <button onClick={() => addToCart(p)}>Agregar</button>
+          </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+function Carrito() {
+  const { cart } = useCart();
+
+  return (
+    <div>
+      <h2>Carrito</h2>
+      {cart.length === 0 ? (
+        <p>Tu carrito está vacio </p>
+      ) : (
+        <ul>
+          {cart.map((item, i) => (
+            <li key={i}>{item.nombre} - S/. {item.precio}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+
+function App() {
+  return (
+    <CartProvider>
+      <nav style={{ marginBottom: "20px" }}>
+        <Link to="/">Home</Link> 
+        <Link to="/catalogo">Catálogo</Link>
+        <Link to="/carrito">Carrito</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/catalogo" element={<Catalogo />} />
+        <Route path="/carrito" element={<Carrito />} />
+      </Routes>
+    </CartProvider>
+  );
+}
+
+export default App;
